@@ -270,5 +270,27 @@ brid_dataframe = spark.createDataFrame(zip(lista_key,lista_value), schema=['poin
 brid_dataframe.write.csv("bridkresults.csv")
 
 
+# find the top k considering every point as a query object
+
+knn_dictionary = {}
+knn_list = []
+for point in getListOfPoints(dataframe_2):
+    knn_list = kNearestNeighbor(dataframe_2, point, 5)
+    knn_dictionary.update({point: [knn_list]})
+    
+
+# saving the result as a dataframe with columns 'point' and 'knn points'
+
+lista_key2 = []
+lista_value2 = []
+
+for key in knn_dictionary:
+    lista_key2.append(str(key))
+    lista_value2.append(str(knn_dictionary[key][0]))
+    
+dict_dataframe = spark.createDataFrame(zip(lista_key2,lista_value2), schema=['point', 'knn_points'])
+
+dict_dataframe.write.csv("knnresults.csv")
+
 
 
