@@ -53,11 +53,9 @@ def knn(dataframe, oq, k):
     resultSet = df.select("id", "distances").orderBy('distances').limit(k)
     return(resultSet)
 
-
-
 ##
 ## TESTING
-##
+## 
 
 
 ## load the dataset (local)
