@@ -40,36 +40,31 @@ def simpleF(oq):
 ##
 
 def knn_laesa(dataframe, oq, k):
-    
-    for i in range(dataframe.rdd.getNumPartitions()):
 
+    for i in range(dataframe.rdd.getNumPartitions()):
+            
         if i == 0:
             ## PART_ONE
-            ## take the first k rows and calculate the distance from Oq
-            
-            df_part0 = dataframe.where(spark_partition_id() == i).localCheckpoint()
-            df_part0_new = df_part0.withColumn("dist_Oq", simpleF(oq)(F.col('fv')))
-            df_part0_new = df_part0_new.orderBy("dist_Oq").limit(k)
-            max_value2 = df_part0_new.agg(max('dist_Oq')).collect()[0][0]
+            df = dataframe.where(spark_partition_id() == i).localCheckpoint()
+            df = df.withColumn("dist_Oq", simpleF(oq)(F.col('fv')))
+            df = df.orderBy("dist_Oq").limit(k)
+            max_value2 = df.agg(max('dist_Oq')).collect()[0][0]
 
         else:
             ## PART_TWO
-            ## from the second partition forward 
-            ## uses the lower bound to cut useless rows
-    
-            df_parti = dataframe.filter(spark_partition_id() == i).localCheckpoint()
-            df_parti = df_parti.where(df_parti["|d(oq,p1)-d(oi,p1)|"] <= max_value2)
-            df_parti_new = df_parti.withColumn("dist_Oq", simpleF(oq)(F.col('fv')))
+
+            df_aux = dataframe.filter(spark_partition_id() == i).localCheckpoint()
+            df_aux = df_aux.where(df_aux["|d(oq,p1)-d(oi,p1)|"] <= max_value2)
+            df_aux = df_aux.withColumn("dist_Oq", simpleF(oq)(F.col('fv')))
 
 
 
-            ## PART_THREE 
-            ## append the remain rows into the last dataframe and take the new top-K
+            ## PART_THREE
+            df = df.union(df_aux).orderBy("dist_Oq").limit(k).localCheckpoint()
+            max_value2 = df.agg(max('dist_Oq')).collect()[0][0]
             
-            df_part0_new = df_part0_new.union(df_parti_new).orderBy("dist_Oq").limit(k).localCheckpoint()
-            max_value2 = df_part0_new.agg(max('dist_Oq')).collect()[0][0]
+    resultSet1 = df.select("id", "dist_Oq").orderBy('dist_Oq').limit(k)
     
-    resultSet1 = df_part0_new.select("id", "dist_Oq").orderBy('dist_Oq').limit(k)
     return(resultSet1)
 
 
@@ -118,21 +113,18 @@ assembler = VectorAssembler(
 
 ## appends the fv into the dataframe as column
 df = assembler.transform(df)
-df_new = df.withColumn(f'distances_oi_pivot', simpleF(pivot)(F.col('fv')))
-df_with_dist = df_new.withColumn("|d(oq,p1)-d(oi,p1)|", \
+df = df.withColumn(f'distances_oi_pivot', simpleF(pivot)(F.col('fv')))
+df = df.withColumn("|d(oq,p1)-d(oi,p1)|", \
     abs (dist_pivot_oq - \
     F.col('distances_oi_pivot')))
 
-df_with_dist = df_with_dist.orderBy("|d(oq,p1)-d(oi,p1)|")
-
-df_2 = df_with_dist.repartitionByRange(20, col('|d(oq,p1)-d(oi,p1)|'))
-
+df = df.orderBy("|d(oq,p1)-d(oi,p1)|")
 
 ##
 ## CALLING LAESA_KNN FUNCTION
 ##
 
-result = knn_laesa(df_2, oq, k)
+result = knn_laesa(df, oq, k)
 result.show()
 
 
