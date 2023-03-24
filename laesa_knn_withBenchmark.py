@@ -168,10 +168,10 @@ def benchmark():
     list_k = [5,10]
     
     ## defines size of dataframe    
-    list_dfSize = ["/home/weber/Documents/coordDF100.csv"]
+    list_dfSize = ["/home/weber/Documents/coordDF100.csv","/home/weber/Documents/coordDF1K.csv"]
                   
     # define pivots amount
-    list_pivot = [2]
+    list_pivot = [2,3]
       
      
     # create a list to save the results
