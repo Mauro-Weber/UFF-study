@@ -131,7 +131,7 @@ def laesa_knn(df, oq, k, pivots_list):
 ##
 
 ##
-## LAESA KNN WITH COLLECT() AND QUEUE
+## LAESA KNN WITH COLLECT() AND A QUEUE
 ##
 
 def laesa_queue(df, oq, k): 
@@ -161,7 +161,7 @@ def laesa_queue(df, oq, k):
 ##
 
 ##
-## LAESA KNN WITH toLocalIterator() AND QUEUE
+## LAESA KNN WITH toLocalIterator() AND A QUEUE
 ##
 
 def laesa_queue_1(df, oq, k): 
@@ -189,6 +189,41 @@ def laesa_queue_1(df, oq, k):
 ##############################################################################
 ##
 
+##
+## LAESA KNN WITH foreach() AND A QUEUE
+##
+
+def laesa_queue5(df, oq, k):  
+    r_laesa = float('inf')
+    h = 0
+    count = df.count()
+    drops = 0
+    stop_iteration = True
+    def process_partition(iterator):
+        nonlocal r_laesa, h, drops, stop_iteration 
+        global_pq = []
+        for row in iterator:
+            if stop_iteration:
+                h += 1
+                if len(global_pq) < k:
+                    heapq.heappush(global_pq, (-(distance.euclidean(oq, row.fv)), row.id))
+                else:
+                    nextDist = -(distance.euclidean(oq, row.fv))
+                    if (nextDist > global_pq[0][0]): 
+                        heapq.heappush(global_pq, (nextDist, row.id))
+                        heapq.heappop(global_pq) 
+                        r_laesa = global_pq[0][0]
+                if k < h < count and row.lower_bound >= -(r_laesa):
+                    stop_iteration = False
+        yield global_pq, h
+    rdd = df.rdd.mapPartitions(process_partition)
+    pq = rdd.flatMap(lambda x: x).collect()
+    drops = count-pq[1]
+    return (pq, drops)
+
+##
+##############################################################################
+##
 
 ##
 ## DATAFRAME CONFIG
@@ -203,17 +238,12 @@ def benchmark():
     
     ## defines query object and 
     oq = [np.random.rand(1)[0],np.random.rand(1)[0]]
-    
     ## defines neighbrs amount
-    list_k = [10]
-    
+    list_k = [10,20,30,40]
     ## defines size of dataframe    
-    list_dfSize = ["/home/weber/Documents/coordDF100.csv"]#,"/home/weber/Documents/coordDF1K.csv","/home/weber/Documents/coordDF10K.csv","/home/weber/Documents/coordDF100K.csv"]
-                  
+    list_dfSize = ["/home/weber/Documents/coordDF100.csv"]#,"/home/weber/Documents/coordDF1K.csv","/home/weber/Documents/coordDF10K.csv","/home/weber/Documents/coordDF100K.csv"]            
     # define pivots amount
     list_pivot = [2]
-      
-     
     # create a list to save the results
     resultList = []
     # iterative index "id"
@@ -250,17 +280,13 @@ def benchmark():
             
             # for each pivots amount
             for pivots in list_pivot:
-                
                 lista_columns = []
-                
                 # creates random pivots
                 pivots_list = [(i+1,[np.random.rand(1)[0],np.random.rand(1)[0]]) for i in range(pivots)]
-                
                 ## calculates the distance from oi to pivots
                 for i in range(len(pivots_list)):
                     df = df.withColumn(f'distances_oi_pivot{i+1}', simpleF(pivots_list[i][1])(F.col('fv')))
-                    
-                    
+
                 for i in range(len(pivots_list)):
                     df = df.withColumn(f"|d(oq,p{i+1})-d(oi,p{i+1})|", \
                         abs (distance.euclidean(oq, pivots_list[i][1]) - \
@@ -268,11 +294,8 @@ def benchmark():
 
                     lista_columns.append(f"|d(oq,p{i+1})-d(oi,p{i+1})|")
 
-
-
                 df = df.withColumn("lower_bound", greatest(*[col_name for col_name in lista_columns]))
                 df = df.orderBy(df["lower_bound"])
-                
                 
                 # measure the execution time of the laesa function
                 start_time_knn = time.time()
@@ -309,7 +332,7 @@ def benchmark():
 
                 # save results in a tuple
                 tuple = ()
-                tuple += (j,"laesa_queue_collect", size, k, pivots, end_time_queue - start_time_queue, result4[1])
+                tuple += (j,"laesa_knn_collect", size, k, pivots, end_time_queue - start_time_queue, result4[1])
             
                 # save results tuple in a List            
                 resultList.append(tuple)
@@ -322,7 +345,20 @@ def benchmark():
 
                 # save results in a tuple
                 tuple = ()
-                tuple += (j,"laesa_queue_toLocalIterator", size, k, pivots, end_time_queue - start_time_queue, result5[1])
+                tuple += (j,"laesa_knn_toLocalIterator", size, k, pivots, end_time_queue - start_time_queue, result5[1])
+            
+                # save results tuple in a List            
+                resultList.append(tuple)
+                j+=1 
+                
+                # measure the execution time of the laesa function
+                start_time_queue2 = time.time()
+                result6 = laesa_queue5(df, oq, k)
+                end_time_queue2 = time.time()  
+
+                # save results in a tuple
+                tuple = ()
+                tuple += (j,"laesa_knn_foreach", size, k, pivots, end_time_queue2 - start_time_queue2, result6[1])
             
                 # save results tuple in a List            
                 resultList.append(tuple)
