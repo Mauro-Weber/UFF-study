@@ -52,8 +52,6 @@ import heapq
 spark = SparkSession.builder.appName("SparkLAESAKnn").getOrCreate()
 
 
-
-
 ##DEFINES A UDF FROM L2DIST THE DATAFRAME FROM A QUERY SET
 distance_udf = F.udf(lambda x,y: float(distance.euclidean(x, y)), DoubleType())
 
@@ -198,12 +196,12 @@ def laesa_queue5(df, oq, k):
     h = 0
     count = df.count()
     drops = 0
-    stop_iteration = True
+    not_stop_iteration = True
     def process_partition(iterator):
         nonlocal r_laesa, h, drops, stop_iteration 
         global_pq = []
         for row in iterator:
-            if stop_iteration:
+            if not_stop_iteration:
                 h += 1
                 if len(global_pq) < k:
                     heapq.heappush(global_pq, (-(distance.euclidean(oq, row.fv)), row.id))
@@ -214,13 +212,13 @@ def laesa_queue5(df, oq, k):
                         heapq.heappop(global_pq) 
                         r_laesa = global_pq[0][0]
                 if k < h < count and row.lower_bound >= -(r_laesa):
-                    stop_iteration = False
+                   not_stop_iteration = False
         yield global_pq, h
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
     drops = count-pq[1]
     return (pq, drops)
-
+    
 ##
 ##############################################################################
 ##
@@ -241,9 +239,12 @@ def benchmark():
     ## defines neighbrs amount
     list_k = [10,20,30,40]
     ## defines size of dataframe    
-    list_dfSize = ["/home/weber/Documents/coordDF100.csv"]#,"/home/weber/Documents/coordDF1K.csv","/home/weber/Documents/coordDF10K.csv","/home/weber/Documents/coordDF100K.csv"]            
+    list_dfSize = ["/home/weber/Documents/coordDF100.csv",/
+    		   "/home/weber/Documents/coordDF1K.csv",/
+    		   "/home/weber/Documents/coordDF10K.csv",/
+    		   "/home/weber/Documents/coordDF100K.csv"]            
     # define pivots amount
-    list_pivot = [2]
+    list_pivot = [2,5,10]
     # create a list to save the results
     resultList = []
     # iterative index "id"
@@ -391,29 +392,11 @@ def benchmark():
 # CALLING BENCHMARK
 lista = benchmark()
 
-
-
-
-
-
-
+spark.stop()
 ##
 ###############################################################################
 ##
 
 
-##
-## CREATES BENCHMARK
-##
 
-
-## df          --> dataframe
-## algorithm   --> query algorithms
-## method      --> pivots selection method 
-## n_pivots    --> pivots amount
-## n_neighbors --> neighbors amount
-
-def benchmark(df, algorithm, method, n_pivots, n_neighbors):
-    
-    return()
     
