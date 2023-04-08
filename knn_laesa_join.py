@@ -1,4 +1,4 @@
-def laesa_join3(df, oqDF, k):  
+def laesa_join(df, oqDF, k):  
     r_laesa = float('inf')
     h = 0
     count = df.count()
@@ -28,5 +28,15 @@ def laesa_join3(df, oqDF, k):
         pq = rdd.flatMap(lambda x: x).collect()
     
         dict_results[oq.idOq] = pq
+        
+    
+    # SORT ELEMENTS AND RETURN TO POSITIVE VALUES
+    
+    final_dict = {}
 
-    return dict_results
+    for key, value in dict_results.items():
+        new_lst = [(-x[0], x[1]) for x in value[0]]
+        sorted_lst = sorted(new_lst, key=lambda x: x[0])
+        final_dict[key] = [sorted_lst, value[1]]   
+    
+    return final_dict
