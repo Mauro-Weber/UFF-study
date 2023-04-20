@@ -106,7 +106,6 @@ def bridk(df, oqDF, k):
                 
                 
     dropped = df.filter(df.distance_oq.isNull()).count()
-    total_time_fin = time.time()
     
     return(coordenadas, influence_dictio, dropped)
    
