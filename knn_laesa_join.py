@@ -26,11 +26,7 @@ def laesa_join(df, oqDF, k):
             yield global_pq, count-h
         rdd = df_oq.rdd.mapPartitions(process_partition)
         pq = rdd.flatMap(lambda x: x).collect()
-    
         dict_results[oq.idOq] = pq
-        
-    
-    # SORT ELEMENTS AND RETURN TO POSITIVE VALUES
     
     final_dict = {}
 
