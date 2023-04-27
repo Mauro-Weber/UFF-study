@@ -1,0 +1,40 @@
++---+-----------------+-------+---+--------------+----------+--------------------+---------+-----------+
+| id|           method|df_size|  k|            oq|qnt_pivots|select_pivots_method|     time|droped_rows|
++---+-----------------+-------+---+--------------+----------+--------------------+---------+-----------+
+|  1|     bridk_simple|  10000| 10|[0.241, 0.845]|         3|              random| 2.778959|          0|
+|  2|bridk_incremental|  10000| 10|[0.241, 0.845]|         3|              random|1.2375052|       9953|
+|  3|     bridk_simple|  10000| 25|[0.241, 0.845]|         3|              random|1.5441241|          0|
+|  4|bridk_incremental|  10000| 25|[0.241, 0.845]|         3|              random|1.4556222|       8758|
+|  5|     bridk_simple|  10000| 50|[0.241, 0.845]|         3|              random|7.6243687|          0|
+|  6|bridk_incremental|  10000| 50|[0.241, 0.845]|         3|              random|4.4350414|          0|
+|  7|     bridk_simple|  10000| 10|[0.241, 0.845]|         3|         maxVariance| 1.388263|          0|
+|  8|bridk_incremental|  10000| 10|[0.241, 0.845]|         3|         maxVariance|1.3721209|       9488|
+|  9|     bridk_simple|  10000| 25|[0.241, 0.845]|         3|         maxVariance|1.8543084|          0|
+| 10|bridk_incremental|  10000| 25|[0.241, 0.845]|         3|         maxVariance|1.6374981|       5951|
+| 11|     bridk_simple|  10000| 50|[0.241, 0.845]|         3|         maxVariance| 8.581684|          0|
+| 12|bridk_incremental|  10000| 50|[0.241, 0.845]|         3|         maxVariance| 4.206732|          0|
+| 13|     bridk_simple|  10000| 10|[0.241, 0.845]|         3|        fechoConvexo|1.3270905|          0|
+| 14|bridk_incremental|  10000| 10|[0.241, 0.845]|         3|        fechoConvexo|0.8498037|       9946|
+| 15|     bridk_simple|  10000| 25|[0.241, 0.845]|         3|        fechoConvexo|1.6527481|          0|
+| 16|bridk_incremental|  10000| 25|[0.241, 0.845]|         3|        fechoConvexo|1.2167423|       8240|
+| 17|     bridk_simple|  10000| 50|[0.241, 0.845]|         3|        fechoConvexo| 8.393719|          0|
+| 18|bridk_incremental|  10000| 50|[0.241, 0.845]|         3|        fechoConvexo| 3.889165|          0|
+| 19|     bridk_simple|  10000| 10|[0.241, 0.845]|         5|              random|1.6120253|          0|
+| 20|bridk_incremental|  10000| 10|[0.241, 0.845]|         5|              random| 1.048842|       9974|
+| 21|     bridk_simple|  10000| 25|[0.241, 0.845]|         5|              random|1.8901734|          0|
+| 22|bridk_incremental|  10000| 25|[0.241, 0.845]|         5|              random|1.1859109|       9186|
+| 23|     bridk_simple|  10000| 50|[0.241, 0.845]|         5|              random| 8.506191|          0|
+| 24|bridk_incremental|  10000| 50|[0.241, 0.845]|         5|              random|3.7475717|          0|
+| 25|     bridk_simple|  10000| 10|[0.241, 0.845]|         5|         maxVariance|1.6152091|          0|
+| 26|bridk_incremental|  10000| 10|[0.241, 0.845]|         5|         maxVariance|1.0125234|       9952|
+| 27|     bridk_simple|  10000| 25|[0.241, 0.845]|         5|         maxVariance|  1.89047|          0|
+| 28|bridk_incremental|  10000| 25|[0.241, 0.845]|         5|         maxVariance|1.6358311|       7845|
+| 29|     bridk_simple|  10000| 50|[0.241, 0.845]|         5|         maxVariance| 9.281495|          0|
+| 30|bridk_incremental|  10000| 50|[0.241, 0.845]|         5|         maxVariance|3.9709208|          0|
+| 31|     bridk_simple|  10000| 10|[0.241, 0.845]|         5|        fechoConvexo|1.6380723|          0|
+| 32|bridk_incremental|  10000| 10|[0.241, 0.845]|         5|        fechoConvexo|1.1219871|       9971|
+| 33|     bridk_simple|  10000| 25|[0.241, 0.845]|         5|        fechoConvexo|2.9382675|          0|
+| 34|bridk_incremental|  10000| 25|[0.241, 0.845]|         5|        fechoConvexo|1.3938055|       9158|
+| 35|     bridk_simple|  10000| 50|[0.241, 0.845]|         5|        fechoConvexo|  8.11346|          0|
+| 36|bridk_incremental|  10000| 50|[0.241, 0.845]|         5|        fechoConvexo| 4.068162|          0|
++---+-----------------+-------+---+--------------+----------+--------------------+---------+-----------+
