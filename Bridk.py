@@ -72,7 +72,6 @@ def bridk(df, oqDF, k):
                                     orderBy("distance_oq", ascending=True).\
                                     first() ## TOO MUCH EXPENSIVE
                 
-                #PASSAR NO TESTE DE INFLUENCIA
              
                 # dist_oq
                 dist_oq = get_min.distance_oq
