@@ -15,7 +15,6 @@ from pyspark.sql.types import *
 import numpy as np
 import time
 
-
 spark = SparkSession.builder.appName("SparkLAESAKnn").getOrCreate()
 
 def simpleF(oq):
@@ -55,7 +54,6 @@ def main():
             
             for method in pivots_method:
                 if method == "random":
-                    #pivots_list = [(i+1,[np.random.rand(1)[0],np.random.rand(1)[0]]) for i in range(pivots)]
                     random_pivots_list = [(i+1,[np.random.rand(1)[0],np.random.rand(1)[0]]) for i in range(pivots)]
                     pivots_list = random_pivots_list
                 
@@ -77,7 +75,7 @@ def main():
                     start_time_bridk_simple = time.time()
                     result3 = bridk_simple(df, oq, k)
                     end_time_bridk_simple = time.time()  
-                    
+
                     tuple = ()
                     tuple += (j,"bridk_simple", size, k, str(oq), pivots, method, end_time_bridk_simple - start_time_bridk_simple, 0)
                     resultList.append(tuple)
@@ -106,7 +104,7 @@ def main():
     df_final = spark.createDataFrame(data = resultList, schema=schema)
     
     df_final.show()
-    
+
     return(df_final)
             
 

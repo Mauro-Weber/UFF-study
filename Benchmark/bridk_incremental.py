@@ -3,7 +3,7 @@
 from scipy.spatial import distance
 from functools import reduce
 import heapq
-
+                 
 
 def bridk_incremental(df, oq, k): 
     h = 0
@@ -59,9 +59,8 @@ def bridk_incremental(df, oq, k):
                                                queue_pq[0][2]])
                         heapq.heappop(queue_pq) 
                         add_neighbor += 1
-     
         yield influence_list, h
-    
+
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
     drops = count-pq[1]
