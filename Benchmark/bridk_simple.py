@@ -46,6 +46,7 @@ def bridk_simple(df, oq, k):
             point_influence = row["fv"]
             r_influence = row["distances"]
             list_result.append((row["id"],row["distances"]))
+            influences.append([row["fv"], row["distances"]])
             dic_ent[f"{row.id}"] = [row["fv"],row["distances"]]
             first_run =  False
             continue

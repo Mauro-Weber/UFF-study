@@ -76,6 +76,8 @@ def main():
                     result3 = bridk_simple(df, oq, k)
                     end_time_bridk_simple = time.time()  
 
+                    print(result3[0])
+
                     tuple = ()
                     tuple += (j,"bridk_simple", size, k, str(oq), pivots, method, end_time_bridk_simple - start_time_bridk_simple, 0)
                     resultList.append(tuple)
@@ -84,6 +86,8 @@ def main():
                     start_time_bridk_incremental = time.time()
                     result4 = bridk_incremental(df, oq, k)
                     end_time_bridk_incremental = time.time()  
+
+                    print(result4[0])
 
                     tuple = ()
                     tuple += (j,"bridk_incremental", size, k, str(oq), pivots, method, end_time_bridk_incremental - start_time_bridk_incremental, result4[1])
