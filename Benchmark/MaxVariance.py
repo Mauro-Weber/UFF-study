@@ -60,7 +60,7 @@ class MaxVariance:
 
         # create a random sample of the input dataset
         sample1 = dataset.sample(False, 0.1, seed=42)
-        sample2 = dataset.sample(False, 0.1, seed=24)
+        sample2 = dataset.subtract(sample1).sample(False, 0.1, seed=24)
 
         # convert dataset to vectors
         cNames = dataset.columns
@@ -69,7 +69,6 @@ class MaxVariance:
         
         
         #assembler = VectorAssembler(inputCols=dataset.columns, outputCol="features")
-        dataset_vectors = assembler.transform(dataset).select("features")
         sample_vectors1 = assembler.transform(sample1).select("features")
         sample_vectors2 = assembler.transform(sample2).select("features").withColumnRenamed("features","features2")
 

@@ -11,7 +11,7 @@ def bridk_incremental(df, oq, k):
     drops = 0
     add_neighbor = 0
     not_stop_iteration = True
-    queue_pq = []
+    queue_pq = [(float('inf'), 0, [0.0, 0.0])]
     influence_list = []
     def process_partition(iterator):
         nonlocal h, k, count, not_stop_iteration, add_neighbor, queue_pq, influence_list
@@ -39,7 +39,7 @@ def bridk_incremental(df, oq, k):
                 if min_lower_bound is None:
                     continue
                 
-                if distance.euclidean(oq, row.fv) < min_lower_bound:
+                if (distance.euclidean(oq, row.fv) < min_lower_bound) and (distance.euclidean(oq, row.fv) < queue_pq[0][0]):
                     influence_list.append([row.id,distance.euclidean(oq, row.fv),row.fv])
                     add_neighbor += 1
 
