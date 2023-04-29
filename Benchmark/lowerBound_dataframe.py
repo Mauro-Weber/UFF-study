@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pyspark.sql import SparkSession
+from pyspark.sql.functions import spark_partition_id
 
 from pyspark.sql.functions import greatest
 from pyspark.sql.window import Window
@@ -31,9 +31,12 @@ def lowerBound_dataFrame(df, oq, pivots_list):
 
     df = df.withColumn("lower_bound", greatest(*[col_name for col_name in lista_columns]))
     df = df.orderBy(df["lower_bound"])
-    
-    df = df.orderBy("lower_bound")
-    window = Window.partitionBy('spark_partition_id').orderBy("lower_bound")
+
+    df = df.withColumn('partition_id', spark_partition_id())
+    window = Window.partitionBy('partition_id').orderBy("lower_bound")
     df = df.withColumn("next_lb", F.lead("lower_bound").over(window))
+
+    #df = df.drop('partition_id').orderBy("lower_bound")
+    df = df.orderBy("lower_bound")
     
     return df

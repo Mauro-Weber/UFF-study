@@ -3,6 +3,7 @@
 from pyspark.sql import SparkSession
 
 from lowerBound_dataframe import lowerBound_dataFrame
+from laesa_branchAndBound import laesa
 from bridk_incremental import bridk_incremental
 from treatedDataframe import treatedDataFrame
 from bridk_simple import bridk_simple
@@ -34,12 +35,12 @@ def main():
     
     list_k = [10]
     
-    list_dfNames = ["/home/weber/Documents/coordDF100.csv"]#,\
+    list_dfNames = ["/home/weber/Documents/coordDF1K.csv"]#,\
                    #"/home/weber/Documents/coordDF1K.csv",\
                    #"/home/weber/Documents/coordDF10K.csv",\
                    #"/home/weber/Documents/coordDF100K.csv"]
                   
-    list_pivot = [3,5]
+    list_pivot = [3]
       
     resultList = []
     j = 1
@@ -87,6 +88,16 @@ def main():
 
                     tuple = ()
                     tuple += (j,"bridk_incremental", size, k, str(oq), pivots, method, end_time_bridk_incremental - start_time_bridk_incremental, result4[1])
+                    resultList.append(tuple)
+                    j+=1 
+
+
+                    start_time_laesa = time.time()
+                    result5 = laesa(df, oq, k)
+                    end_time_laesa = time.time()  
+
+                    tuple = ()
+                    tuple += (j,"laesa_knn", size, k, str(oq), pivots, method, end_time_laesa - start_time_laesa, result5[1])
                     resultList.append(tuple)
                     j+=1 
                          

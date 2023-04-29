@@ -14,7 +14,7 @@ def bridk_incremental(df, oq, k):
     queue_pq = [(float('inf'), 0, [0.0, 0.0])]
     influence_list = []
     def process_partition(iterator):
-        nonlocal h, k, count, not_stop_iteration, add_neighbor, queue_pq, influence_list
+        nonlocal h, k, not_stop_iteration, add_neighbor, queue_pq, influence_list
         for row in iterator:
             
             teste = True
@@ -22,7 +22,6 @@ def bridk_incremental(df, oq, k):
             if not_stop_iteration == True:
 
                 if add_neighbor >= k:
-                    count = count - h
                     not_stop_iteration = False
                     continue
                 
@@ -64,4 +63,5 @@ def bridk_incremental(df, oq, k):
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
     drops = count-pq[1]
+    
     return (pq[0], drops)

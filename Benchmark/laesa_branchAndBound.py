@@ -16,7 +16,7 @@ def distanceF(oq):
     return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
 
 def laesa(df, oq, k):  
-    df = df.orderBy("lower_bound_oq_1")
+    df = df.orderBy("lower_bound")
     r_laesa = float('inf')
     h = 0
     count = df.count()
@@ -36,7 +36,7 @@ def laesa(df, oq, k):
                         heapq.heappush(global_pq, (nextDist, row.id))
                         heapq.heappop(global_pq)   
                         r_laesa = global_pq[0][0]
-                        if k < h < count and row.lower_bound_oq_1 >= -(r_laesa):
+                        if k < h < count and row.lower_bound >= -(r_laesa):
                             not_stop_iteration = False
         yield global_pq, h
     
@@ -47,7 +47,6 @@ def laesa(df, oq, k):
     flat_list = [item for sublist in pq if isinstance(sublist, list) for item in sublist]
     sorted_list = sorted(flat_list, key=lambda x: x[0], reverse=True)
     top5_elements = sorted_list[:5]
-    print(top5_elements)
     
     drops = count-pq[1]
     return (pq, drops)
