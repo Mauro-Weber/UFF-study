@@ -6,34 +6,17 @@ Created on Wed Apr 26 20:13:19 2023
 @author: weber
 """
 
-# Import SparkSession
+from pyspark.sql.types import DoubleType
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
-from pyspark.sql.types import DoubleType
-
-## the distance function
-from scipy.spatial import distance
-## creates the feature vector
-from pyspark.ml.feature import VectorAssembler
 
 
 from pyspark.sql.functions import pow, sum, col
+from pyspark.ml.feature import VectorAssembler
+from scipy.spatial import distance
 
-
-
-
-
-
-
-
-
-## start session
 spark = SparkSession.builder.appName("SparkLAESAKnn").getOrCreate()
 
-
-
-
-##DEFINES A UDF FROM L2DIST THE DATAFRAME FROM A QUERY SET
 distance_udf = F.udf(lambda x,y: float(distance.euclidean(x, y)), DoubleType())
 
 def simpleF(oq):
@@ -89,38 +72,3 @@ class MaxVariance:
         sorted_pivots = [(i, tupla[0]) for i, tupla in enumerate(sorted_lst, 1)]
         
         return sorted_pivots
-    
-    def find_max_variance_fullset(self):
-        # create sample dataset
-        dataset = self.df.select("id","coord_x", "coord_y")
-
-        # create a random sample of the input dataset
-        sample1 = dataset
-        sample2 = dataset
-
-        # convert dataset to vectors
-        cNames = dataset.columns
-        cNames.remove("id")
-        assembler = VectorAssembler(inputCols=cNames,outputCol="features")
-        
-        
-        #assembler = VectorAssembler(inputCols=dataset.columns, outputCol="features")
-        dataset_vectors = assembler.transform(dataset).select("features")
-        sample_vectors1 = assembler.transform(sample1).select("features")
-        sample_vectors2 = assembler.transform(sample2).select("features").withColumnRenamed("features","features2")
-
-        # calculate mean distance between objects in part1 and part2
-        cross_df = sample_vectors1.crossJoin(sample_vectors2)
-        distance = cross_df.withColumn("distance", self.distance_udf()("features", "features2"))
-        mean_distance = distance.groupBy("features").agg({"distance": "mean"})
-        
-        # calculate variance between objects in part1 and part2
-        new_df = mean_distance.join(distance, on="features", how="inner")
-        variance_df = self.calculate_sum_of_squares(new_df, (sample_vectors2.count() + 1))
-        
-        # save the variances and sort it
-        rows = variance_df.select("features", "variance").collect()
-        list_var = [(row.features, row.variance) for row in rows]
-        sorted_lst = sorted(list_var, key=lambda x: x[1], reverse=True)[0:self.nPivots]
-        
-        return sorted_lst

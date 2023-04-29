@@ -1,3 +1,28 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 26 20:13:19 2023
+
+@author: weber
+"""
+
+from pyspark.sql.types import DoubleType
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
+
+
+from pyspark.sql.functions import pow, sum, col
+from pyspark.ml.feature import VectorAssembler
+from scipy.spatial import distance
+
+spark = SparkSession.builder.appName("SparkLAESAKnn").getOrCreate()
+
+distance_udf = F.udf(lambda x,y: float(distance.euclidean(x, y)), DoubleType())
+
+def simpleF(oq):
+    return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
+
+
 class MaxVariance:
     
     def __init__(self, df, nPivots):
@@ -18,7 +43,7 @@ class MaxVariance:
 
         # create a random sample of the input dataset
         sample1 = dataset.sample(False, 0.1, seed=42)
-        sample2 = dataset.sample(False, 0.1, seed=24)
+        sample2 = dataset.subtract(sample1).sample(False, 0.1, seed=24)
 
         # convert dataset to vectors
         cNames = dataset.columns
@@ -27,7 +52,6 @@ class MaxVariance:
         
         
         #assembler = VectorAssembler(inputCols=dataset.columns, outputCol="features")
-        dataset_vectors = assembler.transform(dataset).select("features")
         sample_vectors1 = assembler.transform(sample1).select("features")
         sample_vectors2 = assembler.transform(sample2).select("features").withColumnRenamed("features","features2")
 
@@ -44,5 +68,7 @@ class MaxVariance:
         rows = variance_df.select("features", "variance").collect()
         list_var = [(row.features, row.variance) for row in rows]
         sorted_lst = sorted(list_var, key=lambda x: x[1], reverse=True)[0:self.nPivots]
+       
+        sorted_pivots = [(i, tupla[0]) for i, tupla in enumerate(sorted_lst, 1)]
         
-        return sorted_lst
+        return sorted_pivots

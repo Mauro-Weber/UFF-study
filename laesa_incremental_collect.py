@@ -1,3 +1,21 @@
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 29 10:45:03 2023
+
+@author: weber
+"""
+
+from pyspark.sql.types import DoubleType
+from scipy.spatial import distance
+import pyspark.sql.functions as F
+import heapq
+
+def distanceF(oq):
+    return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
+
+
 def laesa(df, oq, k):
     df = df.orderBy("lower_bound_oq_1")
     df_min = df["id","lower_bound_oq_1"]

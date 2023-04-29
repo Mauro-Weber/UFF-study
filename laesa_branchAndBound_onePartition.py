@@ -1,6 +1,20 @@
-##
-## LAESA KNN WITH foreach() --- ONE PARTITION
-##
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 29 10:40:13 2023
+
+@author: weber
+"""
+
+from pyspark.sql.types import DoubleType
+from scipy.spatial import distance
+import pyspark.sql.functions as F
+import heapq
+
+def distanceF(oq):
+    return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
+
 
 def laesa(df, oq, k):  
     df = df.repartition(1)
@@ -31,7 +45,3 @@ def laesa(df, oq, k):
     pq = rdd.flatMap(lambda x: x).collect()
     drops = count-pq[1]
     return (pq, drops)
-
-##
-##############################################################################
-##

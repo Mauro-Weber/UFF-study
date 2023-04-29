@@ -1,6 +1,19 @@
-##
-## LAESA KNN WITH foreach() --- REDUCE
-##
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 29 10:44:53 2023
+
+@author: weber
+"""
+
+from pyspark.sql.types import DoubleType
+from scipy.spatial import distance
+import pyspark.sql.functions as F
+import heapq
+
+def distanceF(oq):
+    return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
 
 def laesa(df, oq, k):  
     df = df.orderBy("lower_bound_oq_1")
@@ -37,7 +50,3 @@ def laesa(df, oq, k):
     
     drops = count-pq[1]
     return (pq, drops)
-
-##
-##############################################################################
-##

@@ -1,10 +1,26 @@
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 29 10:46:12 2023
+
+@author: weber
+"""
+
+from pyspark.sql.types import DoubleType
+from pyspark.sql.window import Window
+from scipy.spatial import distance
+import pyspark.sql.functions as F
+import heapq
+
+def distanceF(oq):
+    return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
+
+
 df = df.orderBy("lower_bound_oq_1")
 window = Window.orderBy("lower_bound_oq_1")
 df = df.withColumn("next_lb", F.lead("lower_bound_oq_1").over(window))
 
-##
-################################################################################
-##
 
 def laesa2(df, oq, k): 
     h = 0
