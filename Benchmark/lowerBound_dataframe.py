@@ -33,7 +33,7 @@ def lowerBound_dataFrame(df, oq, pivots_list):
     df = df.orderBy(df["lower_bound"])
     
     df = df.orderBy("lower_bound")
-    window = Window.orderBy("lower_bound")
+    window = Window.partitionBy('spark_partition_id').orderBy("lower_bound")
     df = df.withColumn("next_lb", F.lead("lower_bound").over(window))
     
     return df

@@ -1,9 +1,17 @@
+#!/usr/bin/env python3
+
+from scipy.spatial import distance
+from functools import reduce
+import heapq
+
 def laesa_join(df, oqDF, k):  
     r_laesa = float('inf')
     h = 0
     count = df.count()
     stop_iteration = True
     dict_results = {}
+    rows_oqDF = oqDF.collect()
+
     for oq in rows_oqDF: 
         
         df_oq = df.orderBy(df[f"lower_bound_oq_{int(oq.idOq)}"])
