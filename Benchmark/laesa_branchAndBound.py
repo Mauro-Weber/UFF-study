@@ -9,14 +9,16 @@ Created on Wed Apr 29 10:44:53 2023
 
 from pyspark.sql.types import DoubleType
 from scipy.spatial import distance
+from reduce_knn import reduce_knn
 import pyspark.sql.functions as F
+import pandas as pd
 import heapq
 
 def distanceF(oq):
     return F.udf(lambda x: float(distance.euclidean(x, oq)), DoubleType())
 
+
 def laesa(df, oq, k):  
-    df = df.orderBy("lower_bound")
     r_laesa = float('inf')
     h = 0
     count = df.count()
@@ -36,17 +38,17 @@ def laesa(df, oq, k):
                         heapq.heappush(global_pq, (nextDist, row.id))
                         heapq.heappop(global_pq)   
                         r_laesa = global_pq[0][0]
-                        if k < h < count and row.lower_bound >= -(r_laesa):
-                            not_stop_iteration = False
+
+                    if row.next_lb is None:
+                        continue
+                    if k < h < count and row.lower_bound >= -(r_laesa):
+                        not_stop_iteration = False
+
         yield global_pq, h
     
-    df = df.repartition(8)
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
-    
-    flat_list = [item for sublist in pq if isinstance(sublist, list) for item in sublist]
-    sorted_list = sorted(flat_list, key=lambda x: x[0], reverse=True)
-    top5_elements = sorted_list[:5]
-    
-    drops = count-pq[1]
-    return (pq, drops)
+    print(pq)
+    rslt = reduce_knn(pq, count, k)
+
+    return (rslt[0], rslt[1])

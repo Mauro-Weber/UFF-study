@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from scipy.spatial import distance
-from functools import reduce
+
 import heapq
                  
 
@@ -62,6 +62,9 @@ def bridk_incremental(df, oq, k):
 
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
+
+    print(pq)
+
     drops = count-pq[1]
     
     return (pq[0], drops)

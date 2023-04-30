@@ -7,6 +7,8 @@ from laesa_branchAndBound import laesa
 from bridk_incremental import bridk_incremental
 from treatedDataframe import treatedDataFrame
 from bridk_simple import bridk_simple
+from knn_brute import knn
+
 from MaxVariance import MaxVariance
 from fechoConvexo import FechoConv
 
@@ -33,7 +35,7 @@ def main():
     oqDF.show()
     
     
-    list_k = [10]
+    list_k = [5]
     
     list_dfNames = ["/home/weber/Documents/coordDF1K.csv"]#,\
                    #"/home/weber/Documents/coordDF1K.csv",\
@@ -77,6 +79,8 @@ def main():
                     result3 = bridk_simple(df, oq, k)
                     end_time_bridk_simple = time.time()  
 
+                    print(result3[0])
+
                     tuple = ()
                     tuple += (j,"bridk_simple", size, k, str(oq), pivots, method, end_time_bridk_simple - start_time_bridk_simple, 0)
                     resultList.append(tuple)
@@ -98,6 +102,16 @@ def main():
 
                     tuple = ()
                     tuple += (j,"laesa_knn", size, k, str(oq), pivots, method, end_time_laesa - start_time_laesa, result5[1])
+                    resultList.append(tuple)
+                    j+=1 
+
+
+                    start_time_knn = time.time()
+                    result6 = knn(df, oq, k)
+                    end_time_knn = time.time()  
+
+                    tuple = ()
+                    tuple += (j,"brute_knn", size, k, str(oq), pivots, method, end_time_knn - start_time_knn, 0)
                     resultList.append(tuple)
                     j+=1 
                          
