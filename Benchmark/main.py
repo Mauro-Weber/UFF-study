@@ -35,9 +35,9 @@ def main():
     oqDF.show()
     
     
-    list_k = [5]
+    list_k = [10]
     
-    list_dfNames = ["/home/weber/Documents/coordDF1K.csv"]#,\
+    list_dfNames = ["/home/weber/Documents/coordDF10K.csv"]#,\
                    #"/home/weber/Documents/coordDF1K.csv",\
                    #"/home/weber/Documents/coordDF10K.csv",\
                    #"/home/weber/Documents/coordDF100K.csv"]
@@ -95,6 +95,7 @@ def main():
                     resultList.append(tuple)
                     j+=1 
 
+                    print(result4[0])
 
                     start_time_laesa = time.time()
                     result5 = laesa(df, oq, k)

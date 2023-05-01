@@ -48,7 +48,6 @@ def laesa(df, oq, k):
     
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
-    print(pq)
     rslt = reduce_knn(pq, count, k)
 
     return (rslt[0], rslt[1])
