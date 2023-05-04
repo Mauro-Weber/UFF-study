@@ -32,13 +32,15 @@ def lowerBound_dataFrame(df, oq, pivots_list):
     df = df.withColumn("lower_bound", greatest(*[col_name for col_name in lista_columns]))
 
     df = df.withColumn('dummy', F.lit(1))
-
     window = Window.partitionBy('dummy').orderBy("lower_bound")
-    df_new = df.withColumn("next_lb", F.lead("lower_bound").over(window))
-    df_new = df_new.drop("dummy")
+    df = df.withColumn("next_lb", F.lead("lower_bound").over(window))
+    df = df.drop("dummy")
 
-    num_partitions = 5
-    df_repartitioned = df_new.repartitionByRange(num_partitions, F.col("lower_bound"))
-    df_repartitioned = df_repartitioned.withColumn('partition_id', spark_partition_id()).sortWithinPartitions("lower_bound")
+
+
+    num_partitions = 5 
+    df_repartitioned = df.repartition(num_partitions)
+    df_repartitioned = df_repartitioned.withColumn('partition_id', spark_partition_id()).\
+                                        sortWithinPartitions("lower_bound")
     
     return df_repartitioned

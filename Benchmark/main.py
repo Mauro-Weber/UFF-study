@@ -35,14 +35,14 @@ def main():
     oqDF.show()
     
     
-    list_k = [10]
+    list_k = [25]
     
     list_dfNames = ["/home/weber/Documents/coordDF10K.csv"]#,\
                    #"/home/weber/Documents/coordDF1K.csv",\
                    #"/home/weber/Documents/coordDF10K.csv",\
                    #"/home/weber/Documents/coordDF100K.csv"]
                   
-    list_pivot = [3]
+    list_pivot = [10]
       
     resultList = []
     j = 1
@@ -79,8 +79,6 @@ def main():
                     result3 = bridk_simple(df, oq, k)
                     end_time_bridk_simple = time.time()  
 
-                    print(result3[0])
-
                     tuple = ()
                     tuple += (j,"bridk_simple", size, k, str(oq), pivots, method, end_time_bridk_simple - start_time_bridk_simple, 0)
                     resultList.append(tuple)
@@ -95,7 +93,6 @@ def main():
                     resultList.append(tuple)
                     j+=1 
 
-                    print(result4[0])
 
                     start_time_laesa = time.time()
                     result5 = laesa(df, oq, k)
