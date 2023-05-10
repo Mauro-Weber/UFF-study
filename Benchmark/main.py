@@ -27,34 +27,44 @@ def simpleF(oq):
 def main():
     
     
-    oq = [0.241,0.845]
+    #oq = [0.241,0.845]
     
     oq2 = [(1.0,[0.241,0.845])]
     oqColumns = ["idOq","fvOq"]
     oqDF = spark.createDataFrame(data=oq2, schema = oqColumns)
-    oqDF.show()
     
     
-    list_k = [25]
+    list_k = list(range(5, 21, 5))
     
-    list_dfNames = ["/home/weber/Documents/coordDF10K.csv"]#,\
+    #list_dfNames = ["/home/weber/Documents/coordDF10K.csv"]#,\
                    #"/home/weber/Documents/coordDF1K.csv",\
                    #"/home/weber/Documents/coordDF10K.csv",\
                    #"/home/weber/Documents/coordDF100K.csv"]
                   
-    list_pivot = [10]
+    list_pivot = [2]
       
     resultList = []
     j = 1
     
-    for df_name in list_dfNames:
-        treatR = treatedDataFrame(df_name)
-        df = treatR[0]
-        size = treatR[1]
+    treatR = treatedDataFrame("/home/weber/Documents/coordDF10K.csv")
+    df = treatR[0]
+    oqDF = df.sample(False, 0.0002, seed=42)
+    df = df.subtract(oqDF) 
+    size = treatR[1]
+
+    oqDF.show()
+
+    rowsOq = oqDF.collect()
+   
+
+
+    for rowOq in rowsOq:
 
         for pivots in list_pivot:
             pivots_method = ["random","maxVariance","fechoConvexo"]
             
+            start_time_pivot_select = time.time()
+
             for method in pivots_method:
                 if method == "random":
                     random_pivots_list = [(i+1,[np.random.rand(1)[0],np.random.rand(1)[0]]) for i in range(pivots)]
@@ -71,45 +81,46 @@ def main():
                     fech_pivots_lst = fech_conv.return_pivots()
                     pivots_list = fech_pivots_lst
                 
+                end_time_pivot_select = time.time()
                 for k in list_k:
                 
-                    df = lowerBound_dataFrame(df, oq, pivots_list)
+                    df = lowerBound_dataFrame(df, rowOq.fv, pivots_list)
                                     
                     start_time_bridk_simple = time.time()
-                    result3 = bridk_simple(df, oq, k)
+                    result3 = bridk_simple(df, rowOq.fv, k)
                     end_time_bridk_simple = time.time()  
 
                     tuple = ()
-                    tuple += (j,"bridk_simple", size, k, str(oq), pivots, method, end_time_bridk_simple - start_time_bridk_simple, 0)
+                    tuple += (j,"bridk_simple", size, k, str(rowOq.id), pivots, method, end_time_pivot_select -start_time_pivot_select, end_time_bridk_simple - start_time_bridk_simple, 0)
                     resultList.append(tuple)
                     j+=1 
                     
                     start_time_bridk_incremental = time.time()
-                    result4 = bridk_incremental(df, oq, k)
+                    result4 = bridk_incremental(df, rowOq.fv, k)
                     end_time_bridk_incremental = time.time()  
 
                     tuple = ()
-                    tuple += (j,"bridk_incremental", size, k, str(oq), pivots, method, end_time_bridk_incremental - start_time_bridk_incremental, result4[1])
+                    tuple += (j,"bridk_incremental", size, k, str(rowOq.id), pivots, method, end_time_pivot_select -start_time_pivot_select, end_time_bridk_incremental - start_time_bridk_incremental, result4[1])
                     resultList.append(tuple)
                     j+=1 
 
 
                     start_time_laesa = time.time()
-                    result5 = laesa(df, oq, k)
+                    result5 = laesa(df, rowOq.fv, k)
                     end_time_laesa = time.time()  
 
                     tuple = ()
-                    tuple += (j,"laesa_knn", size, k, str(oq), pivots, method, end_time_laesa - start_time_laesa, result5[1])
+                    tuple += (j,"laesa_knn", size, k, str(rowOq.id), pivots, method, end_time_pivot_select -start_time_pivot_select, end_time_laesa - start_time_laesa, result5[1])
                     resultList.append(tuple)
                     j+=1 
 
 
                     start_time_knn = time.time()
-                    result6 = knn(df, oq, k)
+                    result6 = knn(df, rowOq.fv, k)
                     end_time_knn = time.time()  
 
                     tuple = ()
-                    tuple += (j,"brute_knn", size, k, str(oq), pivots, method, end_time_knn - start_time_knn, 0)
+                    tuple += (j,"brute_knn", size, k, str(rowOq.id), pivots, method, end_time_pivot_select -start_time_pivot_select, end_time_knn - start_time_knn, 0)
                     resultList.append(tuple)
                     j+=1 
                          
@@ -121,12 +132,15 @@ def main():
         StructField("oq", StringType(), True),
         StructField("qnt_pivots", IntegerType(), True),
         StructField("select_pivots_method", StringType(), True),
-        StructField("time", FloatType(), True),
+        StructField("time_select_pivots_method", FloatType(), True),
+        StructField("execution_time", FloatType(), True),
         StructField("droped_rows", IntegerType(), True)])
     
     df_final = spark.createDataFrame(data = resultList, schema=schema)
     
     df_final.show()
+
+    df_final.coalesce(1).write.csv("/home/weber/Documents/df10K_2.csv",header=True, mode="overwrite")
 
     return(df_final)
             
