@@ -38,8 +38,7 @@ def lowerBound_dataFrame(df, oq, pivots_list):
 
 
 
-    num_partitions = 5 
-    df_repartitioned = df.repartition(num_partitions)
+    df_repartitioned = df.repartition(8)
     df_repartitioned = df_repartitioned.withColumn('partition_id', spark_partition_id()).\
                                         sortWithinPartitions("lower_bound")
     

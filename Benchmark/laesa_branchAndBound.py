@@ -11,7 +11,6 @@ from pyspark.sql.types import DoubleType
 from scipy.spatial import distance
 from reduce_knn import reduce_knn
 import pyspark.sql.functions as F
-import pandas as pd
 import heapq
 
 def distanceF(oq):
@@ -43,11 +42,11 @@ def laesa(df, oq, k):
                         continue
                     if k < h < count and row.lower_bound >= -(r_laesa):
                         not_stop_iteration = False
-
+        print(h)
         yield global_pq, h
     
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
     rslt = reduce_knn(pq, count, k)
-
+    print(rslt[1])
     return (rslt[0], rslt[1])

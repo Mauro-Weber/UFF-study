@@ -7,15 +7,12 @@ Created on Wed Apr 26 20:13:19 2023
 """
 
 from pyspark.sql.types import DoubleType
-from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 
 
 from pyspark.sql.functions import pow, sum, col
 from pyspark.ml.feature import VectorAssembler
 from scipy.spatial import distance
-
-spark = SparkSession.builder.appName("SparkLAESAKnn").getOrCreate()
 
 distance_udf = F.udf(lambda x,y: float(distance.euclidean(x, y)), DoubleType())
 

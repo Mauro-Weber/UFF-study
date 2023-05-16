@@ -3,6 +3,8 @@
 from scipy.spatial import distance
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
+import time
+
 
 distance_udf = F.udf(lambda x,y: float(distance.euclidean(x, y)), DoubleType())
 
@@ -14,8 +16,18 @@ def bridk_simple(df, oq, k):
     h = 1
     first_run = True
     influences = []
-    rows = df.collect()
     
+
+    # start_time = time.time()
+
+    rows = df.collect()
+    # end_time = time.time()
+
+
+    # print(f'TEMPO COLLECT {end_time - start_time}')
+    
+
+    # start_time = time.time()
     for row in rows:
         if first_run:
             influences.append([row["id"], row["fv"], row["distances"]])
@@ -36,6 +48,10 @@ def bridk_simple(df, oq, k):
             h += 1
         
         if h == k:
+            # end_time = time.time()
+
+
+            # print(f'TEMPO k={k} RUN BRIDK SIMPLE {end_time - start_time}')
             return (influences) 
     
     return (influences) 

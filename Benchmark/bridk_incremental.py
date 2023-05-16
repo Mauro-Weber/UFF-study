@@ -4,6 +4,9 @@ from scipy.spatial import distance
 from bridk_reduce import bridk_reduce
 
 import heapq
+
+
+import time
                  
 
 def bridk_incremental(df, oq, k): 
@@ -15,10 +18,11 @@ def bridk_incremental(df, oq, k):
     queue_pq = [(float('inf'), 0, [0.0, 0.0])]
     influence_list = []
     start_iterator = False
+
     def process_partition(iterator):
         nonlocal h, k, start_iterator, not_stop_iteration, add_neighbor, queue_pq, influence_list
-        for row in iterator:
-            
+
+        for row in iterator:            
             start_iterator = True
             first_teste_infl = True
             second_teste_infl = True
@@ -27,6 +31,7 @@ def bridk_incremental(df, oq, k):
 
                 if add_neighbor >= k:
                     not_stop_iteration = False
+                    start_iterator == False
                     continue
                 
                 h += 1
@@ -81,13 +86,31 @@ def bridk_incremental(df, oq, k):
                     heapq.heappop(queue_pq) 
                     add_neighbor += 1    
 
-
         yield influence_list, h
+
+    
+    
+    # start_time = time.time()
 
     rdd = df.rdd.mapPartitions(process_partition)
     pq = rdd.flatMap(lambda x: x).collect()
-    
+
+    # end_time = time.time()
+
+    # print(f'TEMPO BRIDK INCR {end_time - start_time}')
+
+
+
+
+
+    # start_time = time.time()
+
     result = bridk_reduce(pq,k)
+    # end_time = time.time()
+
+    # print(f'TEMPO k={k} REDUCE BRIDK INCR {end_time - start_time}')
+
+    
     drops = count-result[1]
     
     return (result[0], drops)

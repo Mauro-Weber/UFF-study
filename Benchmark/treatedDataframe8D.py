@@ -10,7 +10,14 @@ def treatedDataFrame(df_name, spark):
     schema = StructType([
         StructField("id", IntegerType(), True),
         StructField("coord_x", FloatType(), True),
-        StructField("coord_y", FloatType(), True)])
+        StructField("coord_y", FloatType(), True),
+        StructField("coord_z", FloatType(), True),
+        StructField("coord_q", FloatType(), True),
+        StructField("coord_k", FloatType(), True),
+        StructField("coord_l", FloatType(), True),
+        StructField("coord_i", FloatType(), True),
+        StructField("coord_p", FloatType(), True)])
+
     
     df = spark.read.csv(df_name ,schema=schema)        
     size = df.count()
@@ -26,5 +33,7 @@ def treatedDataFrame(df_name, spark):
     
     ## appends the fv into the dataframe as column
     df = assembler.transform(df)
+
+    #df.show()
     
     return (df,size)
